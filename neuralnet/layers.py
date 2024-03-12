@@ -133,6 +133,19 @@ def softmax_loss(x, y):
     """
     loss, grad_x = None, None
 
+    def soft_max_compute(input_x):
+        input_x = input_x - np.max(input_x, axis=1, keepdims=True)
+        e_input_x = np.exp(input_x)
+        return e_input_x / np.sum(e_input_x, axis=1, keepdims=True)
+
+    soft_max = soft_max_compute(x)
+    # select the predicted probability for the true assignment
+    probs = soft_max[np.arange(x.shape[0]), y]
+    loss = -np.sum(np.log(probs))/x.shape[0]
+
+    one_hot_matrix = np.zeros_like(soft_max)
+    one_hot_matrix[np.arange(x.shape[0]), y] = 1
+    grad_x = (soft_max - one_hot_matrix) / x.shape[0]
     return loss, grad_x
 
 
@@ -151,10 +164,7 @@ def l2_regularization(w, reg):
     Returns:
     """
     loss, grad_w = None, None
-    ###########################################################################
-    # TODO: Implement L2 regularization.                                      #
-    ###########################################################################
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
+    loss = (reg/2) * np.sum(np.square(w))
+
+    grad_w = reg * w
     return loss, grad_w
