@@ -28,16 +28,16 @@ parser.add_argument(
 
 def main(args):
     # How much data to use for training
-    num_train = 20000
+    num_train = 45000
 
     # Model architecture hyperparameters.
-    hidden_dim = 16
+    hidden_dim = 20
 
     # Optimization hyperparameters.
-    batch_size = 128
-    num_epochs = 10
-    learning_rate = 1e-4
-    reg = 1.0
+    batch_size = 60
+    num_epochs = 70
+    learning_rate = 1e-2
+    reg = 0.005
 
     ###########################################################################
     # TODO: Set hyperparameters for training your model. You can change any   #
@@ -109,12 +109,19 @@ def training_step(model, X_batch, y_batch, reg):
       of the loss with respect to model.parameters()[k].
     """
     loss, grads = None, None
-    ###########################################################################
     # TODO: Compute the loss and gradient for one training iteration.         #
-    ###########################################################################
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
+
+    scores, cache = model.forward(X_batch)
+
+    loss_soft_max, grad_x = softmax_loss(scores, y_batch)
+    l2_w1_loss, grad_w1 = l2_regularization(model.parameters()["w1"], reg)
+    l2_w2_loss, grad_w2 = l2_regularization(model.parameters()["w2"], reg)
+
+    loss = loss_soft_max + l2_w1_loss + l2_w2_loss
+
+    grads = model.backward(grad_x, cache)
+    grads["w2"] += reg * cache[2][1]
+    grads["w1"] += reg * cache[0][1]
     return loss, grads
 
 
